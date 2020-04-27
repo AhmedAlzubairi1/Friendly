@@ -18,6 +18,8 @@ rule token = parse
 | ','      { COMMA }
 | '+'      { PLUS }
 | '-'      { MINUS }
+| '*'      { TIMES }
+| '/'      { DIV }
 | '='      { ASSIGN }
 | "=="     { EQ }
 | "!="     { NEQ }
@@ -32,12 +34,18 @@ rule token = parse
 
 | "make_a" { MAKEA }
 | "make"   { MAKE }
-| "with"   { WITH }
+| "using"   { USING }
 | "named"  { NAMED }
 | "has"    { HAS }
 | "be"     { BE }
-| "will"   { WILL }
+| "does"   { DOES }
+| "do"     { DO }
 | "called" { CALLED }
+
+(*friendly types*)
+
+| "number" { NUM }
+| "function" { FUNC }
 
 (* RETURN *)
 | "return" { RETURN }
