@@ -1,6 +1,6 @@
 (* Abstract Syntax Tree and functions for printing it *)
 
-type op = Add | Sub | Equal | Neq | Less | And | Or
+type op = Add | Sub | Mul | Div | Equal | Neq | Less | And | Or
 
 type typ = Int | Bool
 
@@ -26,7 +26,7 @@ type bind = typ * string
 
 (* func_def: ret_typ fname formals locals body *)
 type func_def = {
-  rtyp: typ;
+  (*rtyp: typ;   friendly doesn't specify return type  *) 
   fname: string;
   formals: bind list;
   locals: bind list;
@@ -34,6 +34,28 @@ type func_def = {
 }
 
 type program = bind list * func_def list
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 (* Pretty-printing functions *)
 let string_of_op = function

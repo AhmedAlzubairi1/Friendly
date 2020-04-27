@@ -4,7 +4,7 @@
 open Ast
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE PLUS MINUS ASSIGN
+%token PERIOD LPAREN RPAREN LBRACE RBRACE PLUS MINUS TIMES DIV ASSIGN
 %token EQ NEQ LT AND OR
 %token IF ELSE WHILE INT BOOL
 /* return, COMMA token */
@@ -17,7 +17,8 @@ open Ast
 %start program
 %type <Ast.program> program
 
-%right ASSIGN
+%right MAKEA /*friendly*/
+%right MAKE  /*friendly*/
 %left OR
 %left AND
 %left EQ NEQ
@@ -32,33 +33,51 @@ program:
 
 decls:
    /* nothing */ { ([], [])               }
- | vdecl SEMI decls { (($1 :: fst $3), snd $3) }
+ | vdecl PERIOD decls { (($1 :: fst $3), snd $3) }
  | fdecl decls { (fst $2, ($1 :: snd $2)) }
 
 vdecl_list:
   /*nothing*/ { [] }
-  | vdecl SEMI vdecl_list  {  $1 :: $3 }
+  | vdecl PERIOD vdecl_list  {  $1 :: $3 }
 
-/* int x */
+/* friendly vdecl covered by */
+/* make_a number called x. */
+
+
 vdecl:
-  typ ID { ($1, $2) }
+  MAKEA typbind { $2 }
+
+typbind:
+  typ CALLED ID { ($1, $3)}
+
+/* need another rule for assign */
+/* make x be <expr> */
+
+
+
 
 typ:
-    INT   { Int   }
+    NUM   { Int   } /*changed INT to NUM for friendly*/
   | BOOL  { Bool  }
+
 
 /* fdecl */
 fdecl:
-  vdecl LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+  MAKEA FUNC CALLED ID USING LPAREN formals_opt RPAREN DOES LBRACE vdecl_list stmt_list RBRACE
+  /*vdecl LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE */
   {
     {
-      rtyp=fst $1;
-      fname=snd $1;
+      /*rtyp=fst $1;*/
+      fname= $4;
       formals=$3;
       locals=$6;
-      body=$7
+      body=$7*/
     }
   }
+
+
+/*how should we do funcion defining?*/
+
 
 /* formals_opt */
 formals_opt:
@@ -66,22 +85,22 @@ formals_opt:
   | formals_list { $1 }
 
 formals_list:
-  vdecl { [$1] }
-  | vdecl COMMA formals_list { $1::$3 }
+  typbind { [$1] }
+  | typbind COMMA formals_list { $1::$3 }
 
 stmt_list:
   /* nothing */ { [] }
   | stmt stmt_list  { $1::$2 }
 
 stmt:
-    expr SEMI                               { Expr $1      }
-  | LBRACE stmt_list RBRACE                 { Block $2 }
+    expr PERIOD                               { Expr $1      }
+  /*| LBRACE stmt_list RBRACE                 { Block $2 }*/
   /* if (condition) { block1} else {block2} */
   /* if (condition) stmt else stmt */
   | IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7) }
   | WHILE LPAREN expr RPAREN stmt           { While ($3, $5)  }
   /* return */
-  | RETURN expr SEMI                        { Return $2      }
+  | RETURN expr PERIOD                      { Return $2      }
 
 expr:
     LITERAL          { Literal($1)            }
@@ -89,15 +108,18 @@ expr:
   | ID               { Id($1)                 }
   | expr PLUS   expr { Binop($1, Add,   $3)   }
   | expr MINUS  expr { Binop($1, Sub,   $3)   }
+  | expr TIMES  expr { Binop($1, Mul,   $3)   }
+  | expr DIV    expr { Binop($1, Div,   $3)   }
   | expr EQ     expr { Binop($1, Equal, $3)   }
   | expr NEQ    expr { Binop($1, Neq, $3)     }
   | expr LT     expr { Binop($1, Less,  $3)   }
   | expr AND    expr { Binop($1, And,   $3)   }
   | expr OR     expr { Binop($1, Or,    $3)   }
-  | ID ASSIGN expr   { Assign($1, $3)         }
+  /*| ID ASSIGN expr   { Assign($1, $3)         }*/
+  | MAKE ID BE  expr { Assign($2, $4)         }
   | LPAREN expr RPAREN { $2                   }
   /* call */
-  | ID LPAREN args_opt RPAREN { Call ($1, $3)  }
+  | DO ID LPAREN args_opt RPAREN { Call ($1, $3)  }
 
 /* args_opt*/
 args_opt:
