@@ -40,16 +40,16 @@ rule token = parse
 | "be"     { BE }
 | "does"   { DOES }
 | "do"     { DO }
-| "called" { CALLED }
-
+| "called" { CALLED } (* THIS IS FOR RETURN TYPE *)
 (*friendly types*)
-
-| "number" { NUM }
+| "outputting" {OUTPUT}
+(* | "number" { NUM }                *)
 | "function" { FUNC }
 
 (* RETURN *)
 | "return" { RETURN }
-| "int"    { INT }
+| "number"    { INT } (*                      *)
+| "int "   {INT}
 | "bool"   { BOOL }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
