@@ -5,7 +5,7 @@ open Ast
 %}
 
 %token PERIOD LPAREN RPAREN LBRACE RBRACE PLUS MINUS TIMES DIV ASSIGN
-%token MAKEA MAKE USING NAMED HAS BE DOES DO CALLED FUNC NUM  
+%token MAKEA MAKE USING NAMED HAS BE DOES DO CALLED FUNC NUM OUTPUT  
 %token EQ NEQ LT AND OR
 %token IF ELSE WHILE INT BOOL
 /* return, COMMA token */
@@ -70,7 +70,6 @@ fdecl:
   /*vdecl LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE */
   {
     {
-      /*rtyp=fst $1;*/
       rtyp=$6;
       fname= $4;
       formals=$9;
