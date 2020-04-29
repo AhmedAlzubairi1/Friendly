@@ -26,7 +26,7 @@ type bind = typ * string
 
 (* func_def: ret_typ fname formals locals body *)
 type func_def = {
-  (*rtyp: typ;   friendly doesn't specify return type  *) 
+  rtyp: typ;  (* friendly doesn't specify return type. It needs to so that it works  *) 
   fname: string;
   formals: bind list;
   locals: bind list;
@@ -60,6 +60,8 @@ type program = bind list * func_def list
 (* Pretty-printing functions *)
 let string_of_op = function
     Add -> "+"
+  | Mul -> "*"
+  | Div -> "/"
   | Sub -> "-"
   | Equal -> "=="
   | Neq -> "!="

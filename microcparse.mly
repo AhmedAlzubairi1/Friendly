@@ -5,6 +5,7 @@ open Ast
 %}
 
 %token PERIOD LPAREN RPAREN LBRACE RBRACE PLUS MINUS TIMES DIV ASSIGN
+%token MAKEA MAKE USING NAMED HAS BE DOES DO CALLED FUNC NUM OUTPUT  
 %token EQ NEQ LT AND OR
 %token IF ELSE WHILE INT BOOL
 /* return, COMMA token */
@@ -17,6 +18,7 @@ open Ast
 %start program
 %type <Ast.program> program
 
+/* Why have this in right? */
 %right MAKEA /*friendly*/
 %right MAKE  /*friendly*/
 %left OR
@@ -58,20 +60,21 @@ typbind:
 
 typ:
     NUM   { Int   } /*changed INT to NUM for friendly*/
+  | INT   {Int}
   | BOOL  { Bool  }
 
 
-/* fdecl */
+/* fdecl  ADDED RETURN TYPE*/
 fdecl:
-  MAKEA FUNC CALLED ID USING LPAREN formals_opt RPAREN DOES LBRACE vdecl_list stmt_list RBRACE
+  MAKEA FUNC CALLED ID OUTPUT typ USING LPAREN formals_opt RPAREN DOES LBRACE vdecl_list stmt_list RBRACE
   /*vdecl LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE */
   {
     {
-      /*rtyp=fst $1;*/
+      rtyp=$6;
       fname= $4;
-      formals=$3;
-      locals=$6;
-      body=$7*/
+      formals=$9;
+      locals=$13;
+      body=$14
     }
   }
 
@@ -119,7 +122,7 @@ expr:
   | MAKE ID BE  expr { Assign($2, $4)         }
   | LPAREN expr RPAREN { $2                   }
   /* call */
-  | DO ID LPAREN args_opt RPAREN { Call ($1, $3)  }
+  | DO ID LPAREN args_opt RPAREN { Call ($2, $4)  }
 
 /* args_opt*/
 args_opt:
@@ -129,3 +132,5 @@ args_opt:
 args:
   expr  { [$1] }
   | expr COMMA args { $1::$3 }
+
+
