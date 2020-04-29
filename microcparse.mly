@@ -26,7 +26,7 @@ open Ast
 %left EQ NEQ
 %left LT
 %left PLUS MINUS
-
+%left TIMES DIV
 %%
 
 /* add function declarations*/
