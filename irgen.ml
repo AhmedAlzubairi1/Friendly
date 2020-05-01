@@ -79,7 +79,10 @@ let translate (globals, functions) =
   let malloc_func: L.llvalue=
           L.declare_function "malloc" malloc_t the_module in 
 
-  
+  let strcmp_t: L.lltype =
+          L.function_type i32_t [| str_t; str_t |] in
+  let strcmp_func: L.llvalue= L.declare_function "strcmp" strcmp_t the_module 
+  in   
 
 
 
@@ -135,6 +138,28 @@ let translate (globals, functions) =
       with Not_found -> StringMap.find n global_vars
     in
 
+    let stringCompare a b c d=
+            let one1= L.const_int i32_t 1 in
+            let zero= L.const_int i32_t 0 in 
+
+            let t = L.build_call strcmp_func [| a; b |] "tmp" d in 
+            let truthValue = L.build_icmp L.Icmp.Eq t zero "tmo" d in
+            truthValue
+            in
+
+    let stringCompareNeg a b c d=
+            let one1= L.const_int i32_t 1 in
+            let zero= L.const_int i32_t 0 in 
+
+            let t = L.build_call strcmp_func [| a; b |] "tmp" d in 
+            let truthValue = L.build_icmp L.Icmp.Ne t zero "tmo" d in
+            truthValue
+            in
+
+
+
+
+
     let newFunction a b c d =
        
        (* char * tmp; *)
@@ -167,9 +192,9 @@ let translate (globals, functions) =
         and e2' = build_expr builder e2 in
         (match op with
            A.Add     -> newFunction
-         | A.Equal   -> L.build_icmp L.Icmp.Eq
-         | A.Neq     -> L.build_icmp L.Icmp.Ne
-        ) e1' e2' "tmp" builder
+         | A.Equal   -> stringCompare
+         | A.Neq     -> stringCompareNeg
+        ) e1' e2' "tmp" builder 
         (* Need to change right side *)
      
         | SBinop ((A.Float,_ ) as e1, op, e2) ->
