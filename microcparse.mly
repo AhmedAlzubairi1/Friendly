@@ -5,7 +5,7 @@ open Ast
 %}
 
 %token PERIOD LPAREN RPAREN LBRACE RBRACE PLUS MINUS TIMES DIV ASSIGN
-%token MAKEA MAKE USING NAMED HAS BE DOES DO CALLED FUNC NUM OUTPUT  
+%token MAKEA MAKE USING NAMED HAS BE DOES DO CALLED FUNC NUM OUTPUT STRING 
 %token EQ NEQ LT AND OR
 %token IF ELSE WHILE INT BOOL
 /* return, COMMA token */
@@ -13,6 +13,7 @@ open Ast
 %token <int> LITERAL
 %token <bool> BLIT
 %token <string> ID
+%token <string> SLIT
 %token EOF
 
 %start program
@@ -62,6 +63,7 @@ typ:
     NUM   { Int   } /*changed INT to NUM for friendly*/
   | INT   {Int}
   | BOOL  { Bool  }
+  | STRING {String}
 
 
 /* fdecl  ADDED RETURN TYPE*/
@@ -109,6 +111,7 @@ expr:
     LITERAL          { Literal($1)            }
   | BLIT             { BoolLit($1)            }
   | ID               { Id($1)                 }
+  | SLIT             { StringWord($1)         }
   | expr PLUS   expr { Binop($1, Add,   $3)   }
   | expr MINUS  expr { Binop($1, Sub,   $3)   }
   | expr TIMES  expr { Binop($1, Mul,   $3)   }

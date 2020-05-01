@@ -4,7 +4,8 @@
 
 let digit = ['0'-'9']
 let letter = ['a'-'z' 'A'-'Z']
-
+let punc= [' ' '\t']
+let stringWord= '"' (letter | digit | punc)* '"'
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
 | "/*"     { comment lexbuf }           (* Comments *)
@@ -49,6 +50,8 @@ rule token = parse
 | "return" { RETURN }
 | "number"    { INT } (*                      *)
 | "int "   {INT}
+|"sentence" {STRING}
+| stringWord as a {SLIT(a)}
 | "bool"   { BOOL }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
