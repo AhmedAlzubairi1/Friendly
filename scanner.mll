@@ -53,7 +53,8 @@ rule token = parse
 | "number"    { INT } (*                      *)
 | "int "   {INT}
 |"sentence" {STRING}
-| stringWord as a {SLIT(a)}
+(* | stringWord as a {SLIT(a)} *)
+| '"'      {SLIT(stringCreate (Buffer.create 100) lexbuf) }
 | "bool"   { BOOL }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
@@ -62,6 +63,11 @@ rule token = parse
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 
+and stringCreate buf = parse
+| [^'"']+ { Buffer.add_string buf  ( Lexing.lexeme lexbuf ); stringCreate buf lexbuf }
+| '"'     { Buffer.contents buf}
 and comment = parse
   "*/" { token lexbuf }
 | _    { comment lexbuf }
+
+(* Source for help on string: https://medium.com/@huund/recipes-for-ocamllex-bb4efa0afe53 *)
