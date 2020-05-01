@@ -13,6 +13,8 @@ rule token = parse
 | ')'      { RPAREN }
 | '{'      { LBRACE }
 | '}'      { RBRACE }
+| digit+ '.' digit+ as a {FLIT(a)}
+|"float"   {FLOAT}
 | '.'      { PERIOD } (*friendly*)
 (* COMMA *)
 | ','      { COMMA }

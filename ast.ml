@@ -2,11 +2,12 @@
 
 type op = Add | Sub | Mul | Div | Equal | Neq | Less | And | Or
 
-type typ = Int | Bool |String
+type typ = Int | Bool |String | Float
 
 type expr =
     Literal of int
   | BoolLit of bool
+  | FLiteral of string
   | Id of string
   | StringWord of string
   | Binop of expr * op * expr
@@ -33,6 +34,8 @@ type func_def = {
   locals: bind list;
   body: stmt list;
 }
+
+
 
 type program = bind list * func_def list
 
@@ -75,6 +78,7 @@ let rec string_of_expr = function
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | Id(s) -> s
+  | FLiteral(l) -> l
   |StringWord(a) -> a
   | Binop(e1, o, e2) ->
     string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
@@ -95,6 +99,7 @@ let string_of_typ = function
     Int -> "int"
   | Bool -> "bool"
   | String -> "string"
+  | Float -> "float"
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
