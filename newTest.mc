@@ -7,8 +7,8 @@ make_a function called main outputting number using () does {
   make b be true.
   make c be "Hello World".
   make d be -50.
-  do showWords(c).
-  do showBool(b && false).
+  do showWords("hello "  + "world").
+  do showBool("hi" == "hi").
   do showFloat(a*2.0 - 1000.0).
   do showNumber(d).
   return 0. 

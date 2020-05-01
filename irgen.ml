@@ -50,11 +50,43 @@ let translate (globals, functions) =
 
       in StringMap.add n (L.define_global n init the_module) m in
     List.fold_left global_var StringMap.empty globals in
+(* for no returns, do void type. str_t for malloc  input *)
 
   let printf_t : L.lltype =
     L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_func : L.llvalue =
     L.declare_function "printf" printf_t the_module in
+(* var_arg part means variable amount of inputs for function *)
+(* i32_t is the ouputput, the array stuff is the variable input. Thier types *)
+
+  let strcpy_t : L.lltype =
+          L.function_type str_t [| str_t; str_t |] in
+
+  let strcpy_func : L.llvalue =
+    L.declare_function "strcpy" strcpy_t the_module in
+  
+  let strcat_t: L.lltype=
+    L.function_type str_t [| str_t; str_t |] in
+  let strcat_func: L.llvalue =
+    L.declare_function "strcat" strcat_t the_module in 
+  let strlen_t: L.lltype=
+    L.function_type i32_t [| str_t  |] in
+  let strlen_func: L.llvalue =
+    L.declare_function "strlen" strlen_t the_module in 
+  
+  let malloc_t: L.lltype=
+          L.function_type str_t [| i32_t |] in
+  let malloc_func: L.llvalue=
+          L.declare_function "malloc" malloc_t the_module in 
+
+  
+
+
+
+(*  strcpy is name of the c function *)
+(*  printf_t is lltype printf_func*)
+(* declare_function generates function declaration. It is the header file. the_module represents the program as a whole while builder is the current location *)
+
    (* Define each function (arguments and return type) so we can
      call it even before we've created its body *)
   let function_decls : (L.llvalue * sfunc_def) StringMap.t =
@@ -89,7 +121,7 @@ let translate (globals, functions) =
        * resulting registers to our map *)
       and add_local m (t, n) =
         let local_var = L.build_alloca (ltype_of_typ t) n builder
-        in StringMap.add n local_var m
+             in StringMap.add n local_var m
       in
 
       let formals = List.fold_left2 add_formal StringMap.empty fdecl.sformals
@@ -103,6 +135,24 @@ let translate (globals, functions) =
       with Not_found -> StringMap.find n global_vars
     in
 
+    let newFunction a b c d =
+       
+       (* char * tmp; *)
+       let size1 = L.build_call strlen_func [| a |] "tmp" d in 
+       let size2 = L.build_call strlen_func [| b |] "tmp" d in
+       let one= L.const_int i32_t 1 in (* THis is supposed to add 1 *)
+
+       let sizeAddOne=L.build_add size1 one "tmp" d in 
+       let totalSize= L.build_add sizeAddOne size2 "tmp" d in (* remember to add one to totalSize *)
+       let newString= L.build_call malloc_func [| totalSize|] "tmp" d in 
+       let cpyOne= L.build_call strcpy_func  [| newString; a |] "tmp" d in 
+       let finalCopy= L.build_call strcat_func [|newString; b |] "tmp" d in 
+         finalCopy
+         
+    in 
+   
+  (* returns final llvalue of pointer with adding 
+     Should pass builder on to anything if needed *)
     (* Construct code for an expression; return its value *)
     let rec build_expr builder ((_, e) : sexpr) = match e with
         SLiteral i  -> L.const_int i32_t i
@@ -116,7 +166,7 @@ let translate (globals, functions) =
          let e1' = build_expr builder e1
         and e2' = build_expr builder e2 in
         (match op with
-           A.Add     -> L.build_add
+           A.Add     -> newFunction
          | A.Equal   -> L.build_icmp L.Icmp.Eq
          | A.Neq     -> L.build_icmp L.Icmp.Ne
         ) e1' e2' "tmp" builder
