@@ -29,12 +29,14 @@ let translate (globals, functions) =
   (* Get types from the context *)
   let i32_t      = L.i32_type    context
   and i8_t       = L.i8_type     context
+  and str_t      = L.pointer_type (L.i8_type context)
   and i1_t       = L.i1_type     context in
 
   (* Return the LLVM type for a MicroC type *)
   let ltype_of_typ = function
       A.Int   -> i32_t
     | A.Bool  -> i1_t
+    | A.String -> str_t
   in
 
   (* Create a map of global variables after creating each *)
@@ -65,7 +67,9 @@ let translate (globals, functions) =
     let (the_function, _) = StringMap.find fdecl.sfname function_decls in
     let builder = L.builder_at_end context (L.entry_block the_function) in
 
-    let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in
+    let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder 
+    and string_format_str = L.build_global_stringptr "%s\n" "fmt" builder
+    in
 
     (* Construct the function's "locals": formal arguments and locally
        declared variables.  Allocate each on the stack, initialize their
@@ -99,6 +103,7 @@ let translate (globals, functions) =
     let rec build_expr builder ((_, e) : sexpr) = match e with
         SLiteral i  -> L.const_int i32_t i
       | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
+      | SStringWord a -> L.build_global_stringptr a "temp" builder
       | SId s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = build_expr builder e in
         ignore(L.build_store e' (lookup s) builder); e'
@@ -116,9 +121,12 @@ let translate (globals, functions) =
          | A.Neq     -> L.build_icmp L.Icmp.Ne
          | A.Less    -> L.build_icmp L.Icmp.Slt
         ) e1' e2' "tmp" builder
-      | SCall ("print", [e]) ->
+      | SCall ("showNumber", [e]) | SCall("showBool",[e]) ->
         L.build_call printf_func [| int_format_str ; (build_expr builder e) |]
           "printf" builder
+      | SCall("showWords",[e]) ->
+     L.build_call printf_func [| string_format_str ; (build_expr builder e) |]
+     "printf" builder      
       | SCall (f, args) ->
         let (fdef, fdecl) = StringMap.find f function_decls in
         let llargs = List.rev (List.map (build_expr builder) (List.rev args)) in
