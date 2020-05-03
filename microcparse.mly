@@ -101,7 +101,7 @@ stmt_list:
 
 stmt:
     expr PERIOD                               { Expr $1      }
-  /*| LBRACE stmt_list RBRACE                 { Block $2 }*/
+  | LBRACE stmt_list RBRACE                 { Block $2 }
   /* if (condition) { block1} else {block2} */
   /* if (condition) stmt else stmt */
   | IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7) }
