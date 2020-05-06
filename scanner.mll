@@ -26,12 +26,14 @@ rule token = parse
 | "=="     { EQ }
 | "!="     { NEQ }
 | '<'      { LT }
+| ">"      { GT }
+| ">="     { GTE}
+| "<="     { LTE }
 | "&&"     { AND }
 | "||"     { OR }
 | "if"     { IF }
 | "else"   { ELSE }
 | "while"  { WHILE }
-
 (*friendly keywords*)
 
 | "make_a" { MAKEA }

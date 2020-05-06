@@ -6,7 +6,7 @@ open Ast
 
 %token PERIOD LPAREN RPAREN LBRACE RBRACE PLUS MINUS TIMES DIV ASSIGN
 %token MAKEA MAKE USING NAMED HAS BE DOES DO CALLED FUNC NUM OUTPUT STRING 
-%token EQ NEQ LT AND OR
+%token EQ NEQ LT AND OR LTE GTE GT
 %token IF ELSE WHILE INT BOOL FLOAT
 /* return, COMMA token */
 %token RETURN COMMA
@@ -25,8 +25,8 @@ open Ast
 %right MAKE  /*friendly*/
 %left OR
 %left AND
-%left EQ NEQ
-%left LT
+%left EQ NEQ 
+%left LT GT LTE GTE
 %left PLUS MINUS
 %left TIMES DIV
 %%
@@ -124,6 +124,9 @@ expr:
   | expr LT     expr { Binop($1, Less,  $3)   }
   | expr AND    expr { Binop($1, And,   $3)   }
   | expr OR     expr { Binop($1, Or,    $3)   }
+  | expr LTE    expr { Binop($1, LessEqual,    $3)   }
+  | expr GT     expr { Binop($1, Greater,    $3)   }
+  | expr GTE    expr { Binop($1, GreaterEqual,    $3)   }
   /*| ID ASSIGN expr   { Assign($1, $3)         }*/
   | MAKE ID BE  expr { Assign($2, $4)         }
   | LPAREN expr RPAREN { $2                   }

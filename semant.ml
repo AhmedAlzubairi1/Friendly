@@ -112,8 +112,8 @@ let check (globals, functions) =
           let t = match op with
             Add | Sub | Mul | Div when t1 = Int -> Int
             |Add | Sub | Mul | Div when t1 = Float -> Float
-            |Add  when t1 = String -> String
-            | Equal | Neq -> Bool
+            |Add   when t1 = String -> String
+            | Equal | Neq | Less | LessEqual | Greater | GreaterEqual -> Bool
             | Less when t1 = Int -> Bool
             | And | Or when t1 = Bool -> Bool
             | _ -> raise (Failure err)

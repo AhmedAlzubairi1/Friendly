@@ -158,6 +158,40 @@ let translate (globals, functions) =
 
 
 
+    let lessString a b c d =
+            let one1= L.const_int i32_t 1 in
+            let zero= L.const_int i32_t 0 in 
+
+            let t = L.build_call strcmp_func [| a; b |] "tmp" d in
+            let truthValue= L.build_icmp L.Icmp.Slt t zero "tmp" d in
+            truthValue
+            in 
+
+    let greaterString a b c d =
+            let one1= L.const_int i32_t 1 in
+            let zero= L.const_int i32_t 0 in 
+
+            let t = L.build_call strcmp_func [| a; b |] "tmp" d in
+            let truthValue= L.build_icmp L.Icmp.Sgt t zero "tmp" d in
+            truthValue
+            in 
+
+    let greaterEqualString a b c d =
+            let one1= L.const_int i32_t 1 in
+            let zero= L.const_int i32_t 0 in 
+
+            let t = L.build_call strcmp_func [| a; b |] "tmp" d in
+            let truthValue= L.build_icmp L.Icmp.Sge t zero "tmp" d in
+            truthValue
+            in 
+    let lessEqualString a b c d =
+            let one1= L.const_int i32_t 1 in
+            let zero= L.const_int i32_t 0 in 
+
+            let t = L.build_call strcmp_func [| a; b |] "tmp" d in
+            let truthValue= L.build_icmp L.Icmp.Sle t zero "tmp" d in
+            truthValue
+            in 
 
 
     let newFunction a b c d =
@@ -174,8 +208,8 @@ let translate (globals, functions) =
        let finalCopy= L.build_call strcat_func [|newString; b |] "tmp" d in 
          finalCopy
          
-    in 
-   
+    in
+  
   (* returns final llvalue of pointer with adding 
      Should pass builder on to anything if needed *)
     (* Construct code for an expression; return its value *)
@@ -194,6 +228,10 @@ let translate (globals, functions) =
            A.Add     -> newFunction
          | A.Equal   -> stringCompare
          | A.Neq     -> stringCompareNeg
+         | A.Less    -> lessString
+         | A.LessEqual -> lessEqualString
+         | A.Greater -> greaterString
+         | A.GreaterEqual -> greaterEqualString       
         ) e1' e2' "tmp" builder 
         (* Need to change right side *)
      
@@ -208,12 +246,10 @@ let translate (globals, functions) =
          | A.Equal   -> L.build_fcmp L.Fcmp.Oeq
          | A.Neq     -> L.build_fcmp L.Fcmp.One
          | A.Less    -> L.build_fcmp L.Fcmp.Olt
+         | A.LessEqual -> L.build_fcmp L.Fcmp.Ole
+         | A.Greater -> L.build_fcmp L.Fcmp.Ogt
+         | A.GreaterEqual -> L.build_fcmp L.Fcmp.Oge
         ) e1' e2' "tmp" builder
-      
-        
-
-
-
          | SBinop (e1, op, e2) ->
         let e1' = build_expr builder e1
         and e2' = build_expr builder e2 in
@@ -227,7 +263,10 @@ let translate (globals, functions) =
          | A.Equal   -> L.build_icmp L.Icmp.Eq
          | A.Neq     -> L.build_icmp L.Icmp.Ne
          | A.Less    -> L.build_icmp L.Icmp.Slt
-        ) e1' e2' "tmp" builder
+         | A.LessEqual -> L.build_icmp L.Icmp.Sle
+         | A.Greater -> L.build_icmp L.Icmp.Sgt
+         | A.GreaterEqual -> L.build_icmp L.Icmp.Sge
+         ) e1' e2' "tmp" builder
       | SCall ("showNumber", [e]) | SCall("showTruth",[e]) ->
         L.build_call printf_func [| int_format_str ; (build_expr builder e) |]
           "printf" builder

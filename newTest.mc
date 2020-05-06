@@ -7,9 +7,16 @@ make_a function called main outputting number using () does {
   make b be true.
   make c be "Hello World".
   make d be -50.
-  do showWords("hello "  + "world").
-  do showTruth("hi" == "hi").
-  do showDecimal(a*2.0 - 1000.0).
-  do showNumber(d).
-  return 0. 
+  do showTruth("a" < "b").
+  do showTruth( "a" <= "a"). 
+  do showTruth("a" == "a"). 
+  do showTruth("b" > "a"). 
+  do showTruth("b" >= "a").
+
+  do showTruth("b" < "a"). 
+  do showTruth("b" <= "a"). 
+  do showTruth("a" == "b"). 
+  do showTruth("a" > "b"). 
+  do showTruth("a" >= "b"). 
+return 0. 
 }
