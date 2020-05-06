@@ -14,7 +14,7 @@ rule token = parse
 | '{'      { LBRACE }
 | '}'      { RBRACE }
 | '-'? digit+ '.' digit+ as a {FLIT(a)}
-|"float"   {FLOAT}
+|"decimal"   {FLOAT}
 | '.'      { PERIOD } (*friendly*)
 (* COMMA *)
 | ','      { COMMA }
@@ -55,7 +55,7 @@ rule token = parse
 |"sentence" {STRING}
 (* | stringWord as a {SLIT(a)} *)
 | '"'      {SLIT(stringCreate (Buffer.create 100) lexbuf) }
-| "bool"   { BOOL }
+| "truth"   { BOOL }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
 | '-'? digit+ as lem  { LITERAL(int_of_string lem) }

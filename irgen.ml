@@ -228,13 +228,13 @@ let translate (globals, functions) =
          | A.Neq     -> L.build_icmp L.Icmp.Ne
          | A.Less    -> L.build_icmp L.Icmp.Slt
         ) e1' e2' "tmp" builder
-      | SCall ("showNumber", [e]) | SCall("showBool",[e]) ->
+      | SCall ("showNumber", [e]) | SCall("showTruth",[e]) ->
         L.build_call printf_func [| int_format_str ; (build_expr builder e) |]
           "printf" builder
       | SCall("showWords",[e]) ->
      L.build_call printf_func [| string_format_str ; (build_expr builder e) |]
      "printf" builder      
-     | SCall("showFloat",[e]) ->
+     | SCall("showDecimal",[e]) ->
      L.build_call printf_func [| float_format_str ; (build_expr builder e) |]
      "printf" builder  
       | SCall (f, args) ->
