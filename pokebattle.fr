@@ -1,0 +1,61 @@
+
+make_a chunk called charizard{
+  make_a decimal called health.
+  make_a decimal called damage.
+
+}
+
+make_a chunk called squirtle{
+  make_a decimal called health.
+  make_a decimal called damage.
+
+}
+
+make_a function called init_charizard outputting chunk charizard using (decimal called h, decimal called d) does {
+  make_a chunk charizard called c.
+  make c:health be h.
+  make c:damage be d.
+  return c.
+
+}
+
+
+make_a function called init_squirtle outputting chunk squirtle using (decimal called h, decimal called d) does {
+  make_a chunk squirtle called s.
+  make s:health be h.
+  make s:damage be d.
+  return s.
+}
+
+
+make_a function called attack outputting decimal using (chunk charizard called c, chunk squirtle called s) does {
+  make c:health be c:health - s:damage.
+  do showWords("Squirtle attacked! Charizard health is").
+  do showDecimal(c:health).
+  make s:health be s:health - c:damage.
+  do showWords("Charizard attacked! Squirtle health is"). 
+  do showDecimal(s:health).
+  return 0.0.
+}
+
+
+
+
+make_a function called main outputting number using () does {
+
+  make_a chunk charizard called pete.
+  make_a chunk squirtle called fred.
+  
+  make pete be do init_charizard(10.0, 1.5).
+  make fred be do init_squirtle(10.0, 2.3).
+
+  do attack(pete, fred).
+  
+  return 0. 
+}
+
+
+
+
+
+

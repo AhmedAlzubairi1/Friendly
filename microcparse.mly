@@ -2,12 +2,18 @@
 
 %{
 open Ast
+
+let fst (a,_,_) = a;;
+let snd (_,b,_) = b;;
+let trd (_,_,c) = c;;
+
 %}
 
 %token PERIOD LPAREN RPAREN LBRACE RBRACE PLUS MINUS TIMES DIV ASSIGN
 %token MAKEA MAKE USING NAMED HAS BE DOES DO CALLED FUNC NUM OUTPUT STRING 
 %token EQ NEQ LT AND OR LTE GTE GT
 %token IF ELSE WHILE INT BOOL FLOAT
+%token CHUNK COLON
 /* return, COMMA token */
 %token RETURN COMMA
 %token <int> LITERAL
@@ -29,6 +35,7 @@ open Ast
 %left LT GT LTE GTE
 %left PLUS MINUS
 %left TIMES DIV
+%left COLON
 %%
 
 /* add function declarations*/
@@ -36,9 +43,10 @@ program:
   decls EOF { $1}
 
 decls:
-   /* nothing */ { ([], [])               }
- | vdecl PERIOD decls { (($1 :: fst $3), snd $3) }
- | fdecl decls { (fst $2, ($1 :: snd $2)) }
+        /* nothing */ { ([], [], [])               }
+ | vdecl PERIOD decls { (($1 :: fst $3), snd $3, trd $3) }
+ | fdecl decls { (fst $2, ($1 :: snd $2), trd $2) }
+ | cdecl decls { (fst $2, snd $2, ($1 :: trd $2)) }
 
 vdecl_list:
   /*nothing*/ { [] }
@@ -62,10 +70,11 @@ typbind:
 
 typ:
     NUM   { Int   } /*changed INT to NUM for friendly*/
-  | INT   {Int}
-  | FLOAT {Float}
+  | INT   { Int }
+  | FLOAT { Float }
   | BOOL  { Bool  }
-  | STRING {String}
+  | STRING { String }
+  | CHUNK ID { Chunk($2) }
 
 
 /* fdecl  ADDED RETURN TYPE*/
@@ -83,8 +92,17 @@ fdecl:
   }
 
 
-/*how should we do funcion defining?*/
+cdecl:
+  MAKEA CHUNK CALLED ID LBRACE vdecl_list stmt_list RBRACE 
+  {
+    {
+      cname = $4;
+      cfields = $6;
 
+      cassigns = $7;
+  
+    }
+  }
 
 /* formals_opt */
 formals_opt:
@@ -128,10 +146,12 @@ expr:
   | expr GT     expr { Binop($1, Greater,    $3)   }
   | expr GTE    expr { Binop($1, GreaterEqual,    $3)   }
   /*| ID ASSIGN expr   { Assign($1, $3)         }*/
-  | MAKE ID BE  expr { Assign($2, $4)         }
+  | MAKE expr BE  expr { Assign($2, $4)         }
   | LPAREN expr RPAREN { $2                   }
   /* call */
   | DO ID LPAREN args_opt RPAREN { Call ($2, $4)  }
+  /* access */
+  | expr COLON ID    { Colon ($1, $3)         }
 
 /* args_opt*/
 args_opt:

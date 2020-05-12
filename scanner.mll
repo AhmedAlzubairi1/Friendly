@@ -49,6 +49,8 @@ rule token = parse
 | "outputting" { OUTPUT }
 (* | "number" { NUM }                *)
 | "function" { FUNC }
+| "chunk"  { CHUNK }
+| ":"      { COLON }
 
 (* RETURN *)
 | "return" { RETURN }
