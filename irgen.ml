@@ -18,8 +18,10 @@ open Sast
 
 module StringMap = Map.Make(String)
 
+
+
 (* translate : Sast.program -> Llvm.module *)
-let translate (globals, functions) =
+let translate (globals, functions, chunks) =
   let context    = L.global_context () in
 
   (* Create the LLVM compilation module into which
@@ -33,13 +35,56 @@ let translate (globals, functions) =
   and i1_t       = L.i1_type     context 
   and float_t    = L.double_type context   in
 
+
+let chunk_type_table:(string, L.lltype) Hashtbl.t = Hashtbl.create 10
+in 
+
+let make_chunk_type cdecl =
+  let chunk_t = L.named_struct_type context cdecl.scname in
+  Hashtbl.add chunk_type_table cdecl.scname chunk_t in 
+  List.map make_chunk_type chunks; 
+
+let lookup_chunk_type cname = try Hashtbl.find chunk_type_table cname
+  with Not_found -> raise(Failure("chunk name not found"))
+in 
+
+
   (* Return the LLVM type for a MicroC type *)
   let ltype_of_typ = function
       A.Int   -> i32_t
     | A.Bool  -> i1_t
     | A.String -> str_t
     | A.Float  -> float_t
+    | A.Chunk(cname) -> lookup_chunk_type cname
   in
+
+
+(* Define chunks and fill hashtable *)
+let make_chunk_body cdecl =
+  let chunk_typ = try Hashtbl.find chunk_type_table cdecl.scname
+    with Not_found -> raise(Failure("chunk type not defined")) in
+  let cfields_types = List.map (fun (t, n) -> t) cdecl.scfields in
+  let cfields_lltypes = Array.of_list (List.map ltype_of_typ cfields_types) in
+  L.struct_set_body chunk_typ cfields_lltypes true
+in  ignore(List.map make_chunk_body chunks);
+
+let chunk_field_indices =
+  let handles m one_chunk = 
+    let chunk_field_names = List.map (fun (t, n) -> n) one_chunk.scfields in
+    let add_one n = n + 1 in
+    let add_fieldindex (m, i) field_name =
+      (StringMap.add field_name (add_one i) m, add_one i) in
+    let chunk_field_map = 
+      List.fold_left add_fieldindex (StringMap.empty, -1) chunk_field_names
+    in
+    StringMap.add one_chunk.scname (fst chunk_field_map) m  
+  in
+  List.fold_left handles StringMap.empty chunks  
+  in
+
+
+
+
 
   (* Create a map of global variables after creating each *)
   let global_vars : L.llvalue StringMap.t =
@@ -209,7 +254,34 @@ let translate (globals, functions) =
          finalCopy
          
     in
-  
+
+    let addr_of_expr expr builder = 
+     match expr with
+       SId s -> (lookup s)
+     | SChunkLit c -> (lookup c)
+     | SColon (e1, field) ->
+         let sx = match e1 with (se, sx) -> sx in
+          (match sx with
+         SId s ->
+           let etype = fst( 
+           try List.find (fun n -> snd(n) = s) fdecl.slocals
+             with Not_found -> try List.find (fun n -> snd(n) = s) fdecl.sformals
+               with Not_found -> raise (Failure("Unable to find" ^ s )))
+
+           in
+           (try match etype with
+             Chunk t->
+               let index_number_list = StringMap.find t chunk_field_indices in
+               let index_number = StringMap.find field index_number_list in
+               let chunk_llvalue = lookup s in
+               let access_llvalue = L.build_struct_gep chunk_llvalue index_number "tmp" builder in
+               access_llvalue
+           | _ -> raise (Failure("not found"))
+          with Not_found -> raise (Failure("not found" ^ s)))
+          | _ -> raise (Failure("lhs not found")))
+      | _ -> raise (Failure("addr not found"))
+
+  in
   (* returns final llvalue of pointer with adding 
      Should pass builder on to anything if needed *)
     (* Construct code for an expression; return its value *)
@@ -219,8 +291,27 @@ let translate (globals, functions) =
       | SFLiteral l -> L.const_float_of_string float_t l
       | SStringWord a -> L.build_global_stringptr a "temp" builder
       | SId s       -> L.build_load (lookup s) s builder
-      | SAssign (s, e) -> let e' = build_expr builder e in
-        ignore(L.build_store e' (lookup s) builder); e'
+      | SChunkLit c -> lookup c
+      | SColon (e, field) ->
+        let sx = match e with (se, sx) -> sx in
+        let llvalue = (addr_of_expr sx builder) in
+        let built_e = build_expr builder e in
+        let built_e_lltype = L.type_of built_e in
+        let built_e_opt = L.struct_name built_e_lltype in
+        let built_e_name = (match built_e_opt with
+                             | None -> ""
+                             | Some(s) -> s)
+        in
+        let indices = StringMap.find built_e_name chunk_field_indices in
+        let index = StringMap.find field indices in
+        let access_llvalue = L.build_struct_gep llvalue index "tmp" builder in
+                             L.build_load access_llvalue "tmp" builder
+
+      | SAssign (e1, e2) ->
+         let e1_sx = match e1 with (se, sx) -> sx in
+         let l_val = (addr_of_expr e1_sx builder) in
+         let e2' = build_expr builder e2 in
+        ignore(L.build_store e2' l_val builder); e2'
       | SBinop((A.String,_) as e1,op,e2) ->
          let e1' = build_expr builder e1
         and e2' = build_expr builder e2 in

@@ -1,8 +1,9 @@
 (* Abstract Syntax Tree and functions for printing it *)
 
-type op = Add | Sub | Mul | Div | Equal | Neq | Less | And | Or | LessEqual | Greater| GreaterEqual
+type op = Add | Sub | Mul | Div | Equal | Neq | Less | 
+          And | Or | LessEqual | Greater| GreaterEqual
 
-type typ = Int | Bool |String | Float
+type typ = Int | Bool | String | Float | Chunk of string
 
 type expr =
     Literal of int
@@ -11,9 +12,11 @@ type expr =
   | Id of string
   | StringWord of string
   | Binop of expr * op * expr
-  | Assign of string * expr
+  | Assign of expr * expr
   (* function call *)
   | Call of string * expr list
+  | ChunkLit of string
+  | Colon of expr * string
 
 type stmt =
     Block of stmt list
@@ -36,8 +39,17 @@ type func_def = {
 }
 
 
+type chunk_def = {
 
-type program = bind list * func_def list
+  cname: string;
+  cfields: bind list;
+
+  cassigns: stmt list;
+
+}
+
+
+type program = bind list * func_def list * chunk_def list
 
 
 
@@ -82,12 +94,15 @@ let rec string_of_expr = function
   | BoolLit(false) -> "false"
   | Id(s) -> s
   | FLiteral(l) -> l
-  |StringWord(a) -> a
+  | StringWord(a) -> a
   | Binop(e1, o, e2) ->
     string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
-  | Assign(v, e) -> v ^ " = " ^ string_of_expr e
+  | Assign(v, e) -> string_of_expr v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
+  | ChunkLit(s) -> s
+  | Colon(e, s) -> string_of_expr e ^ " " ^ s
+
 
 let rec string_of_stmt = function
     Block(stmts) ->
@@ -103,6 +118,7 @@ let string_of_typ = function
   | Bool -> "bool"
   | String -> "string"
   | Float -> "float"
+  | Chunk(s) -> "chunk" ^ s
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
@@ -114,7 +130,16 @@ let string_of_fdecl fdecl =
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
 
-let string_of_program (vars, funcs) =
+let string_of_cdecl cdecl =
+  cdecl.cname ^ "{\n" ^
+  String.concat "" (List.map string_of_vdecl cdecl.cfields) ^
+  String.concat "" (List.map string_of_stmt cdecl.cassigns) ^
+  "}\n"
+
+
+
+let string_of_program (vars, funcs, chunks) =
   "\n\nParsed program: \n\n" ^
   String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
-  String.concat "\n" (List.map string_of_fdecl funcs)
+  String.concat "\n" (List.map string_of_fdecl funcs) ^ "\n" ^
+  String.concat "\n" (List.map string_of_cdecl chunks)

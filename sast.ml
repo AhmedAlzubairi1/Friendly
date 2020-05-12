@@ -10,9 +10,12 @@ and sx =
   | SStringWord of string
   | SId of string
   | SBinop of sexpr * op * sexpr
-  | SAssign of string * sexpr
+  | SAssign of sexpr * sexpr
   (* call *)
   | SCall of string * sexpr list
+  | SChunkLit of string
+  | SColon of sexpr * string
+
 
 type sstmt =
     SBlock of sstmt list
@@ -31,7 +34,16 @@ type sfunc_def = {
   sbody: sstmt list;
 }
 
-type sprogram = bind list * sfunc_def list
+type schunk_def = {
+  
+  scname: string;
+  scfields: bind list;
+
+  scassigns: sstmt list;
+
+} 
+
+type sprogram = bind list * sfunc_def list * schunk_def list
 
 
 
@@ -46,7 +58,9 @@ let rec string_of_sexpr (t, e) =
       | SStringWord(a) -> a
       | SBinop(e1, o, e2) ->
         string_of_sexpr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_sexpr e2
-      | SAssign(v, e) -> v ^ " = " ^ string_of_sexpr e
+      | SAssign(v, e) -> string_of_sexpr v ^ " = " ^ string_of_sexpr e
+      | SChunkLit(s) -> s 
+      | SColon(e, s) -> string_of_sexpr e ^ " " ^ s
       | SCall(f, el) ->
           f ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
     ) ^ ")"
@@ -68,7 +82,18 @@ let string_of_sfdecl fdecl =
   String.concat "" (List.map string_of_sstmt fdecl.sbody) ^
   "}\n"
 
-let string_of_sprogram (vars, funcs) =
+
+let string_of_scdecl cdecl = 
+
+  cdecl.scname ^ "{\n" ^
+  String.concat "" (List.map string_of_vdecl cdecl.scfields) ^
+  String.concat "" (List.map string_of_sstmt cdecl.scassigns) ^
+  "}\n"
+
+
+
+let string_of_sprogram (vars, funcs, chunks) =
   "\n\nSementically checked program: \n\n" ^
   String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
-  String.concat "\n" (List.map string_of_sfdecl funcs)
+  String.concat "\n" (List.map string_of_sfdecl funcs) ^ "\n" ^
+  String.concat "\n" (List.map string_of_scdecl chunks)

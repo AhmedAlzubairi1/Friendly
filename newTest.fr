@@ -1,0 +1,16 @@
+
+
+
+make_a function called main outputting number using () does {
+
+
+  return 0.
+
+
+}
+
+
+
+
+
+
