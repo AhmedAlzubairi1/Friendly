@@ -1,55 +1,67 @@
 
-make_a chunk called charizard{
-  make_a decimal called health.
-  make_a decimal called damage.
+make_a chunk called pokemon{
+  make_a number called health.
+  make_a number called damage.
+  make_a sentence called name.
 
 }
 
-make_a chunk called squirtle{
-  make_a decimal called health.
-  make_a decimal called damage.
+make_a function called init_pokemon outputting chunk pokemon using (number called h, number called d, sentence called n) does {
+  make_a chunk pokemon called p.
+  make p:health be h.
+  make p:damage be d.
+  make p:name be n.
+  return p.
 
 }
 
-make_a function called init_charizard outputting chunk charizard using (decimal called h, decimal called d) does {
-  make_a chunk charizard called c.
-  make c:health be h.
-  make c:damage be d.
-  return c.
-
+make_a function called attack outputting chunk pokemon using (chunk pokemon called p1, chunk pokemon called p2) does {
+  make p2:health be p2:health - p1:damage.
+  do showWords(p1:name + " attacked! " + p2:name + " health is").
+  do showNumber(p2:health).
+  return p2.
 }
 
+make_a function called battle outputting chunk pokemon using (chunk pokemon called p1, chunk pokemon called p2) does{
 
-make_a function called init_squirtle outputting chunk squirtle using (decimal called h, decimal called d) does {
-  make_a chunk squirtle called s.
-  make s:health be h.
-  make s:damage be d.
-  return s.
-}
+  make_a chunk pokemon called winner.
 
+  do showWords(p1:name + " and " + p2:name + " are about to do battle!").
+  do showWords(p1:name + "'s health is").
+  do showNumber(p1:health).
+  do showWords(p2:name + "'s health is").
+  do showNumber(p2:health).
 
-make_a function called attack outputting decimal using (chunk charizard called c, chunk squirtle called s) does {
-  make c:health be c:health - s:damage.
-  do showWords("Squirtle attacked! Charizard health is").
-  do showDecimal(c:health).
-  make s:health be s:health - c:damage.
-  do showWords("Charizard attacked! Squirtle health is"). 
-  do showDecimal(s:health).
-  return 0.0.
-}
+  while (p1:health > 0 and p2:health > 0){
+    make p2 be do attack(p1, p2).
+    if(p2:health > 0){
+      make p1 be do attack(p2, p1).
+    } else {}
 
+    if(p2:health <= 0){
+      do showWords(p1:name + " won!").
+      make winner be p1.
+    } else {}
+  
+    
 
-
+    if(p1:health <= 0){
+      do showWords(p2:name + " won!").
+      make winner be p2.
+    } else {}
+  }
+  return winner.
+} 
 
 make_a function called main outputting number using () does {
 
-  make_a chunk charizard called pete.
-  make_a chunk squirtle called fred.
+  make_a chunk pokemon called charizard.
+  make_a chunk pokemon called squirtle.
   
-  make pete be do init_charizard(10.0, 1.5).
-  make fred be do init_squirtle(10.0, 2.3).
+  make charizard be do init_pokemon(10, 2, "Charizard").
+  make squirtle be do init_pokemon(10, 1, "Squirtle").
 
-  do attack(pete, fred).
+  do battle(charizard, squirtle).
   
   return 0. 
 }

@@ -1,6 +1,6 @@
 (* Ocamllex scanner for Friendly*)
 
-{ open Microcparse }
+{ open Parser }
 
 let digit = ['0'-'9']
 let letter = ['a'-'z' 'A'-'Z']
@@ -29,8 +29,8 @@ rule token = parse
 | ">"      { GT }
 | ">="     { GTE}
 | "<="     { LTE }
-| "&&"     { AND }
-| "||"     { OR }
+| "and"     { AND }
+| "or"     { OR }
 | "if"     { IF }
 | "else"   { ELSE }
 | "while"  { WHILE }
@@ -45,6 +45,7 @@ rule token = parse
 | "does"   { DOES }
 | "do"     { DO }
 | "called" { CALLED } (* THIS IS FOR RETURN TYPE *)
+
 (*friendly types*)
 | "outputting" { OUTPUT }
 (* | "number" { NUM }                *)

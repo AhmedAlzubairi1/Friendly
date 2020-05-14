@@ -135,8 +135,18 @@ let check (globals, functions, chunks) =
       with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
 
+
     (* Return a semantically-checked expression, i.e., with a type *)
-    let rec check_expr = function
+    let rec check_expr = 
+      let check_bool_expr e =
+        let (t, e') = check_expr e in
+        match t with
+        | Bool -> (t, e')
+        |  _ -> raise (Failure ("expected Boolean expression in " ^ string_of_expr e))
+      in
+
+      
+      function
         Literal l -> (Int, SLiteral l)
       | BoolLit l -> (Bool, SBoolLit l)
       | StringWord l -> (String, SStringWord l)
@@ -191,6 +201,7 @@ let check (globals, functions, chunks) =
           in
           let args' = List.map2 check_call fd.formals args
           in (fd.rtyp, SCall(fname, args'))
+  
     in
 
     let check_bool_expr e =
@@ -198,6 +209,7 @@ let check (globals, functions, chunks) =
       match t with
       | Bool -> (t, e')
       |  _ -> raise (Failure ("expected Boolean expression in " ^ string_of_expr e))
+
     in
 
     let rec check_stmt_list =function
@@ -259,7 +271,15 @@ let check (globals, functions, chunks) =
     in
 
     (* Return a semantically-checked expression, i.e., with a type *)
-    let rec check_expr = function
+    let rec check_expr = 
+      let check_bool_expr e =
+        let (t, e') = check_expr e in
+        match t with
+        | Bool -> (t, e')
+        |  _ -> raise (Failure ("expected Boolean expression in " ^ string_of_expr e))
+
+      in      
+      function
         Literal l -> (Int, SLiteral l)
       | BoolLit l -> (Bool, SBoolLit l)
       | StringWord l -> (String, SStringWord l)
@@ -323,6 +343,7 @@ let check (globals, functions, chunks) =
       | Bool -> (t, e')
       |  _ -> raise (Failure ("expected Boolean expression in " ^ string_of_expr e))
     in
+
 
     let rec check_stmt_list =function
         [] -> []
