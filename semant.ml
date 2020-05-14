@@ -373,7 +373,6 @@ let check (globals, functions, chunks) =
     {
       scname = chunk.cname;
       scfields = chunk.cfields;
-      scassigns = check_stmt_list chunk.cassigns
     }
   in  
   (globals, List.map check_func functions, List.map check_chunk chunks)

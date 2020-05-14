@@ -94,14 +94,12 @@ fdecl:
 
 
 cdecl:
-  MAKEA CHUNK CALLED ID LBRACE vdecl_list stmt_list RBRACE 
+  MAKEA CHUNK CALLED ID LBRACE vdecl_list RBRACE 
   {
     {
       cname = $4;
       cfields = $6;
 
-      cassigns = $7;
-  
     }
   }
 

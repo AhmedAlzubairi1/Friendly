@@ -44,8 +44,6 @@ type chunk_def = {
   cname: string;
   cfields: bind list;
 
-  cassigns: stmt list;
-
 }
 
 
@@ -133,7 +131,6 @@ let string_of_fdecl fdecl =
 let string_of_cdecl cdecl =
   cdecl.cname ^ "{\n" ^
   String.concat "" (List.map string_of_vdecl cdecl.cfields) ^
-  String.concat "" (List.map string_of_stmt cdecl.cassigns) ^
   "}\n"
 
 
