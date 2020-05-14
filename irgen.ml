@@ -36,50 +36,50 @@ let translate (globals, functions, chunks) =
   and float_t    = L.double_type context   in
 
 
-let chunk_type_table:(string, L.lltype) Hashtbl.t = Hashtbl.create 10
+let chunk_name_to_type:(string, L.lltype) Hashtbl.t = Hashtbl.create 5
 in 
 
-let make_chunk_type cdecl =
-  let chunk_t = L.named_struct_type context cdecl.scname in
-  Hashtbl.add chunk_type_table cdecl.scname chunk_t in 
-  List.map make_chunk_type chunks; 
+let fill_chunk_type_table cdecl =
+  let chunk_type = L.named_struct_type context cdecl.scname in
+  Hashtbl.add chunk_name_to_type cdecl.scname chunk_type in 
+  List.map fill_chunk_type_table chunks; 
 
-let lookup_chunk_type cname = try Hashtbl.find chunk_type_table cname
-  with Not_found -> raise(Failure("chunk name not found"))
+let get_chunk_type cname = try Hashtbl.find chunk_name_to_type cname
+  with Not_found -> raise(Failure(cname ^ " not found"))
 in 
 
 
-  (* Return the LLVM type for a MicroC type *)
+  (* Return the LLVM type for a Friendly type *)
   let ltype_of_typ = function
       A.Int   -> i32_t
     | A.Bool  -> i1_t
     | A.String -> str_t
     | A.Float  -> float_t
-    | A.Chunk(cname) -> lookup_chunk_type cname
+    | A.Chunk(cname) -> get_chunk_type cname
   in
 
 
 (* Define chunks and fill hashtable *)
 let make_chunk_body cdecl =
-  let chunk_typ = try Hashtbl.find chunk_type_table cdecl.scname
-    with Not_found -> raise(Failure("chunk type not defined")) in
-  let cfields_types = List.map (fun (t, n) -> t) cdecl.scfields in
-  let cfields_lltypes = Array.of_list (List.map ltype_of_typ cfields_types) in
-  L.struct_set_body chunk_typ cfields_lltypes true
-in  ignore(List.map make_chunk_body chunks);
+  let chunk_typ = try Hashtbl.find chunk_name_to_type cdecl.scname
+    with Not_found -> raise(Failure(cdecl.scname ^ " not defined")) in
+  let cfield_types = List.map (fun (t, n) -> t) cdecl.scfields in
+  let cfield_lltypes = Array.of_list (List.map ltype_of_typ cfield_types) in
+  L.struct_set_body chunk_typ cfield_lltypes true in
+  List.map make_chunk_body chunks;
 
 let chunk_field_indices =
-  let handles m one_chunk = 
-    let chunk_field_names = List.map (fun (t, n) -> n) one_chunk.scfields in
+  let handles m chnk = 
+    let chunk_field_names = List.map (fun (t, n) -> n) chnk.scfields in
     let add_one n = n + 1 in
     let add_fieldindex (m, i) field_name =
       (StringMap.add field_name (add_one i) m, add_one i) in
     let chunk_field_map = 
       List.fold_left add_fieldindex (StringMap.empty, -1) chunk_field_names
     in
-    StringMap.add one_chunk.scname (fst chunk_field_map) m  
+    StringMap.add chnk.scname (fst chunk_field_map) m  
   in
-  List.fold_left handles StringMap.empty chunks  
+  List.fold_left handles StringMap.empty chunks
   in
 
 
@@ -184,7 +184,6 @@ let chunk_field_indices =
     in
 
     let stringCompare a b c d=
-            let one1= L.const_int i32_t 1 in
             let zero= L.const_int i32_t 0 in 
 
             let t = L.build_call strcmp_func [| a; b |] "tmp" d in 
@@ -193,7 +192,6 @@ let chunk_field_indices =
             in
 
     let stringCompareNeg a b c d=
-            let one1= L.const_int i32_t 1 in
             let zero= L.const_int i32_t 0 in 
 
             let t = L.build_call strcmp_func [| a; b |] "tmp" d in 
@@ -204,7 +202,6 @@ let chunk_field_indices =
 
 
     let lessString a b c d =
-            let one1= L.const_int i32_t 1 in
             let zero= L.const_int i32_t 0 in 
 
             let t = L.build_call strcmp_func [| a; b |] "tmp" d in
@@ -213,7 +210,6 @@ let chunk_field_indices =
             in 
 
     let greaterString a b c d =
-            let one1= L.const_int i32_t 1 in
             let zero= L.const_int i32_t 0 in 
 
             let t = L.build_call strcmp_func [| a; b |] "tmp" d in
@@ -222,7 +218,6 @@ let chunk_field_indices =
             in 
 
     let greaterEqualString a b c d =
-            let one1= L.const_int i32_t 1 in
             let zero= L.const_int i32_t 0 in 
 
             let t = L.build_call strcmp_func [| a; b |] "tmp" d in
@@ -230,7 +225,6 @@ let chunk_field_indices =
             truthValue
             in 
     let lessEqualString a b c d =
-            let one1= L.const_int i32_t 1 in
             let zero= L.const_int i32_t 0 in 
 
             let t = L.build_call strcmp_func [| a; b |] "tmp" d in

@@ -1,0 +1,43 @@
+
+
+
+make_a function called main outputting number using () does {
+
+
+  make_a sentence called s.
+  make_a number called n.
+  make_a decimal called d.
+  make_a truth called t.
+
+  do showWords("Hello World!").
+
+  make s be "Hello World!".
+  do showTruth("Hello World!" == s).
+
+  make n be 100.
+
+  while(n > 0) {
+    do showNumber(n).
+    make n be n - 30.
+  }
+
+  do showNumber( -4 ).
+
+  make d be 3.14159.
+  do showDecimal(d * 100.0).
+  do showDecimal(d / 100.0).
+
+  make t be n > 0.
+  do showTruth(t).
+
+
+  return 0.
+
+
+}
+
+
+
+
+
+

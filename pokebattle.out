@@ -1,0 +1,286 @@
+; ModuleID = 'MicroC'
+source_filename = "MicroC"
+
+%pokemon = type <{ i32, i32, i8* }>
+
+@fmt = private unnamed_addr constant [4 x i8] c"%d\0A\00"
+@fmt.1 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
+@fmt.2 = private unnamed_addr constant [4 x i8] c"%g\0A\00"
+@fmt.3 = private unnamed_addr constant [4 x i8] c"%d\0A\00"
+@fmt.4 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
+@fmt.5 = private unnamed_addr constant [4 x i8] c"%g\0A\00"
+@temp = private unnamed_addr constant [12 x i8] c" attacked! \00"
+@temp.6 = private unnamed_addr constant [11 x i8] c" health is\00"
+@fmt.7 = private unnamed_addr constant [4 x i8] c"%d\0A\00"
+@fmt.8 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
+@fmt.9 = private unnamed_addr constant [4 x i8] c"%g\0A\00"
+@temp.10 = private unnamed_addr constant [6 x i8] c" and \00"
+@temp.11 = private unnamed_addr constant [25 x i8] c" are about to do battle!\00"
+@temp.12 = private unnamed_addr constant [13 x i8] c"'s health is\00"
+@temp.13 = private unnamed_addr constant [13 x i8] c"'s health is\00"
+@temp.14 = private unnamed_addr constant [6 x i8] c" won!\00"
+@temp.15 = private unnamed_addr constant [6 x i8] c" won!\00"
+@fmt.16 = private unnamed_addr constant [4 x i8] c"%d\0A\00"
+@fmt.17 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
+@fmt.18 = private unnamed_addr constant [4 x i8] c"%g\0A\00"
+@temp.19 = private unnamed_addr constant [10 x i8] c"Charizard\00"
+@temp.20 = private unnamed_addr constant [9 x i8] c"Squirtle\00"
+
+declare i32 @printf(i8*, ...)
+
+declare i8* @strcpy(i8*, i8*)
+
+declare i8* @strcat(i8*, i8*)
+
+declare i32 @strlen(i8*)
+
+declare i8* @malloc(i32)
+
+declare i32 @strcmp(i8*, i8*)
+
+define %pokemon @init_pokemon(i32 %h, i32 %d, i8* %n) {
+entry:
+  %h1 = alloca i32
+  store i32 %h, i32* %h1
+  %d2 = alloca i32
+  store i32 %d, i32* %d2
+  %n3 = alloca i8*
+  store i8* %n, i8** %n3
+  %p = alloca %pokemon
+  %tmp = getelementptr inbounds %pokemon, %pokemon* %p, i32 0, i32 0
+  %h4 = load i32, i32* %h1
+  store i32 %h4, i32* %tmp
+  %tmp5 = getelementptr inbounds %pokemon, %pokemon* %p, i32 0, i32 1
+  %d6 = load i32, i32* %d2
+  store i32 %d6, i32* %tmp5
+  %tmp7 = getelementptr inbounds %pokemon, %pokemon* %p, i32 0, i32 2
+  %n8 = load i8*, i8** %n3
+  store i8* %n8, i8** %tmp7
+  %p9 = load %pokemon, %pokemon* %p
+  ret %pokemon %p9
+}
+
+define %pokemon @attack(%pokemon %p1, %pokemon %p2) {
+entry:
+  %p11 = alloca %pokemon
+  store %pokemon %p1, %pokemon* %p11
+  %p22 = alloca %pokemon
+  store %pokemon %p2, %pokemon* %p22
+  %tmp = getelementptr inbounds %pokemon, %pokemon* %p22, i32 0, i32 0
+  %p23 = load %pokemon, %pokemon* %p22
+  %tmp4 = getelementptr inbounds %pokemon, %pokemon* %p22, i32 0, i32 0
+  %tmp5 = load i32, i32* %tmp4
+  %p16 = load %pokemon, %pokemon* %p11
+  %tmp7 = getelementptr inbounds %pokemon, %pokemon* %p11, i32 0, i32 1
+  %tmp8 = load i32, i32* %tmp7
+  %tmp9 = sub i32 %tmp5, %tmp8
+  store i32 %tmp9, i32* %tmp
+  %p110 = load %pokemon, %pokemon* %p11
+  %tmp11 = getelementptr inbounds %pokemon, %pokemon* %p11, i32 0, i32 2
+  %tmp12 = load i8*, i8** %tmp11
+  %tmp13 = call i32 @strlen(i8* %tmp12)
+  %tmp14 = call i32 @strlen(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @temp, i32 0, i32 0))
+  %tmp15 = add i32 %tmp13, 1
+  %tmp16 = add i32 %tmp15, %tmp14
+  %tmp17 = call i8* @malloc(i32 %tmp16)
+  %tmp18 = call i8* @strcpy(i8* %tmp17, i8* %tmp12)
+  %tmp19 = call i8* @strcat(i8* %tmp17, i8* getelementptr inbounds ([12 x i8], [12 x i8]* @temp, i32 0, i32 0))
+  %p220 = load %pokemon, %pokemon* %p22
+  %tmp21 = getelementptr inbounds %pokemon, %pokemon* %p22, i32 0, i32 2
+  %tmp22 = load i8*, i8** %tmp21
+  %tmp23 = call i32 @strlen(i8* %tmp19)
+  %tmp24 = call i32 @strlen(i8* %tmp22)
+  %tmp25 = add i32 %tmp23, 1
+  %tmp26 = add i32 %tmp25, %tmp24
+  %tmp27 = call i8* @malloc(i32 %tmp26)
+  %tmp28 = call i8* @strcpy(i8* %tmp27, i8* %tmp19)
+  %tmp29 = call i8* @strcat(i8* %tmp27, i8* %tmp22)
+  %tmp30 = call i32 @strlen(i8* %tmp29)
+  %tmp31 = call i32 @strlen(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @temp.6, i32 0, i32 0))
+  %tmp32 = add i32 %tmp30, 1
+  %tmp33 = add i32 %tmp32, %tmp31
+  %tmp34 = call i8* @malloc(i32 %tmp33)
+  %tmp35 = call i8* @strcpy(i8* %tmp34, i8* %tmp29)
+  %tmp36 = call i8* @strcat(i8* %tmp34, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @temp.6, i32 0, i32 0))
+  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @fmt.4, i32 0, i32 0), i8* %tmp36)
+  %p237 = load %pokemon, %pokemon* %p22
+  %tmp38 = getelementptr inbounds %pokemon, %pokemon* %p22, i32 0, i32 0
+  %tmp39 = load i32, i32* %tmp38
+  %printf40 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @fmt.3, i32 0, i32 0), i32 %tmp39)
+  %p241 = load %pokemon, %pokemon* %p22
+  ret %pokemon %p241
+}
+
+define %pokemon @battle(%pokemon %p1, %pokemon %p2) {
+entry:
+  %p11 = alloca %pokemon
+  store %pokemon %p1, %pokemon* %p11
+  %p22 = alloca %pokemon
+  store %pokemon %p2, %pokemon* %p22
+  %winner = alloca %pokemon
+  %p13 = load %pokemon, %pokemon* %p11
+  %tmp = getelementptr inbounds %pokemon, %pokemon* %p11, i32 0, i32 2
+  %tmp4 = load i8*, i8** %tmp
+  %tmp5 = call i32 @strlen(i8* %tmp4)
+  %tmp6 = call i32 @strlen(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @temp.10, i32 0, i32 0))
+  %tmp7 = add i32 %tmp5, 1
+  %tmp8 = add i32 %tmp7, %tmp6
+  %tmp9 = call i8* @malloc(i32 %tmp8)
+  %tmp10 = call i8* @strcpy(i8* %tmp9, i8* %tmp4)
+  %tmp11 = call i8* @strcat(i8* %tmp9, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @temp.10, i32 0, i32 0))
+  %p212 = load %pokemon, %pokemon* %p22
+  %tmp13 = getelementptr inbounds %pokemon, %pokemon* %p22, i32 0, i32 2
+  %tmp14 = load i8*, i8** %tmp13
+  %tmp15 = call i32 @strlen(i8* %tmp11)
+  %tmp16 = call i32 @strlen(i8* %tmp14)
+  %tmp17 = add i32 %tmp15, 1
+  %tmp18 = add i32 %tmp17, %tmp16
+  %tmp19 = call i8* @malloc(i32 %tmp18)
+  %tmp20 = call i8* @strcpy(i8* %tmp19, i8* %tmp11)
+  %tmp21 = call i8* @strcat(i8* %tmp19, i8* %tmp14)
+  %tmp22 = call i32 @strlen(i8* %tmp21)
+  %tmp23 = call i32 @strlen(i8* getelementptr inbounds ([25 x i8], [25 x i8]* @temp.11, i32 0, i32 0))
+  %tmp24 = add i32 %tmp22, 1
+  %tmp25 = add i32 %tmp24, %tmp23
+  %tmp26 = call i8* @malloc(i32 %tmp25)
+  %tmp27 = call i8* @strcpy(i8* %tmp26, i8* %tmp21)
+  %tmp28 = call i8* @strcat(i8* %tmp26, i8* getelementptr inbounds ([25 x i8], [25 x i8]* @temp.11, i32 0, i32 0))
+  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @fmt.8, i32 0, i32 0), i8* %tmp28)
+  %p129 = load %pokemon, %pokemon* %p11
+  %tmp30 = getelementptr inbounds %pokemon, %pokemon* %p11, i32 0, i32 2
+  %tmp31 = load i8*, i8** %tmp30
+  %tmp32 = call i32 @strlen(i8* %tmp31)
+  %tmp33 = call i32 @strlen(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @temp.12, i32 0, i32 0))
+  %tmp34 = add i32 %tmp32, 1
+  %tmp35 = add i32 %tmp34, %tmp33
+  %tmp36 = call i8* @malloc(i32 %tmp35)
+  %tmp37 = call i8* @strcpy(i8* %tmp36, i8* %tmp31)
+  %tmp38 = call i8* @strcat(i8* %tmp36, i8* getelementptr inbounds ([13 x i8], [13 x i8]* @temp.12, i32 0, i32 0))
+  %printf39 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @fmt.8, i32 0, i32 0), i8* %tmp38)
+  %p140 = load %pokemon, %pokemon* %p11
+  %tmp41 = getelementptr inbounds %pokemon, %pokemon* %p11, i32 0, i32 0
+  %tmp42 = load i32, i32* %tmp41
+  %printf43 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @fmt.7, i32 0, i32 0), i32 %tmp42)
+  %p244 = load %pokemon, %pokemon* %p22
+  %tmp45 = getelementptr inbounds %pokemon, %pokemon* %p22, i32 0, i32 2
+  %tmp46 = load i8*, i8** %tmp45
+  %tmp47 = call i32 @strlen(i8* %tmp46)
+  %tmp48 = call i32 @strlen(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @temp.13, i32 0, i32 0))
+  %tmp49 = add i32 %tmp47, 1
+  %tmp50 = add i32 %tmp49, %tmp48
+  %tmp51 = call i8* @malloc(i32 %tmp50)
+  %tmp52 = call i8* @strcpy(i8* %tmp51, i8* %tmp46)
+  %tmp53 = call i8* @strcat(i8* %tmp51, i8* getelementptr inbounds ([13 x i8], [13 x i8]* @temp.13, i32 0, i32 0))
+  %printf54 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @fmt.8, i32 0, i32 0), i8* %tmp53)
+  %p255 = load %pokemon, %pokemon* %p22
+  %tmp56 = getelementptr inbounds %pokemon, %pokemon* %p22, i32 0, i32 0
+  %tmp57 = load i32, i32* %tmp56
+  %printf58 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @fmt.7, i32 0, i32 0), i32 %tmp57)
+  br label %while
+
+while:                                            ; preds = %if_end114, %entry
+  %p159 = load %pokemon, %pokemon* %p11
+  %tmp60 = getelementptr inbounds %pokemon, %pokemon* %p11, i32 0, i32 0
+  %tmp61 = load i32, i32* %tmp60
+  %tmp62 = icmp sgt i32 %tmp61, 0
+  %p263 = load %pokemon, %pokemon* %p22
+  %tmp64 = getelementptr inbounds %pokemon, %pokemon* %p22, i32 0, i32 0
+  %tmp65 = load i32, i32* %tmp64
+  %tmp66 = icmp sgt i32 %tmp65, 0
+  %tmp67 = and i1 %tmp62, %tmp66
+  br i1 %tmp67, label %while_body, label %while_end
+
+while_body:                                       ; preds = %while
+  %p268 = load %pokemon, %pokemon* %p22
+  %p169 = load %pokemon, %pokemon* %p11
+  %attack_result = call %pokemon @attack(%pokemon %p169, %pokemon %p268)
+  store %pokemon %attack_result, %pokemon* %p22
+  %p270 = load %pokemon, %pokemon* %p22
+  %tmp71 = getelementptr inbounds %pokemon, %pokemon* %p22, i32 0, i32 0
+  %tmp72 = load i32, i32* %tmp71
+  %tmp73 = icmp sgt i32 %tmp72, 0
+  br i1 %tmp73, label %then, label %else
+
+then:                                             ; preds = %while_body
+  %p174 = load %pokemon, %pokemon* %p11
+  %p275 = load %pokemon, %pokemon* %p22
+  %attack_result76 = call %pokemon @attack(%pokemon %p275, %pokemon %p174)
+  store %pokemon %attack_result76, %pokemon* %p11
+  br label %if_end
+
+else:                                             ; preds = %while_body
+  br label %if_end
+
+if_end:                                           ; preds = %else, %then
+  %p277 = load %pokemon, %pokemon* %p22
+  %tmp78 = getelementptr inbounds %pokemon, %pokemon* %p22, i32 0, i32 0
+  %tmp79 = load i32, i32* %tmp78
+  %tmp80 = icmp sle i32 %tmp79, 0
+  br i1 %tmp80, label %then81, label %else94
+
+then81:                                           ; preds = %if_end
+  %p182 = load %pokemon, %pokemon* %p11
+  %tmp83 = getelementptr inbounds %pokemon, %pokemon* %p11, i32 0, i32 2
+  %tmp84 = load i8*, i8** %tmp83
+  %tmp85 = call i32 @strlen(i8* %tmp84)
+  %tmp86 = call i32 @strlen(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @temp.14, i32 0, i32 0))
+  %tmp87 = add i32 %tmp85, 1
+  %tmp88 = add i32 %tmp87, %tmp86
+  %tmp89 = call i8* @malloc(i32 %tmp88)
+  %tmp90 = call i8* @strcpy(i8* %tmp89, i8* %tmp84)
+  %tmp91 = call i8* @strcat(i8* %tmp89, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @temp.14, i32 0, i32 0))
+  %printf92 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @fmt.8, i32 0, i32 0), i8* %tmp91)
+  %p193 = load %pokemon, %pokemon* %p11
+  store %pokemon %p193, %pokemon* %winner
+  br label %if_end95
+
+else94:                                           ; preds = %if_end
+  br label %if_end95
+
+if_end95:                                         ; preds = %else94, %then81
+  %p196 = load %pokemon, %pokemon* %p11
+  %tmp97 = getelementptr inbounds %pokemon, %pokemon* %p11, i32 0, i32 0
+  %tmp98 = load i32, i32* %tmp97
+  %tmp99 = icmp sle i32 %tmp98, 0
+  br i1 %tmp99, label %then100, label %else113
+
+then100:                                          ; preds = %if_end95
+  %p2101 = load %pokemon, %pokemon* %p22
+  %tmp102 = getelementptr inbounds %pokemon, %pokemon* %p22, i32 0, i32 2
+  %tmp103 = load i8*, i8** %tmp102
+  %tmp104 = call i32 @strlen(i8* %tmp103)
+  %tmp105 = call i32 @strlen(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @temp.15, i32 0, i32 0))
+  %tmp106 = add i32 %tmp104, 1
+  %tmp107 = add i32 %tmp106, %tmp105
+  %tmp108 = call i8* @malloc(i32 %tmp107)
+  %tmp109 = call i8* @strcpy(i8* %tmp108, i8* %tmp103)
+  %tmp110 = call i8* @strcat(i8* %tmp108, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @temp.15, i32 0, i32 0))
+  %printf111 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @fmt.8, i32 0, i32 0), i8* %tmp110)
+  %p2112 = load %pokemon, %pokemon* %p22
+  store %pokemon %p2112, %pokemon* %winner
+  br label %if_end114
+
+else113:                                          ; preds = %if_end95
+  br label %if_end114
+
+if_end114:                                        ; preds = %else113, %then100
+  br label %while
+
+while_end:                                        ; preds = %while
+  %winner115 = load %pokemon, %pokemon* %winner
+  ret %pokemon %winner115
+}
+
+define i32 @main() {
+entry:
+  %charizard = alloca %pokemon
+  %squirtle = alloca %pokemon
+  %init_pokemon_result = call %pokemon @init_pokemon(i32 10, i32 2, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @temp.19, i32 0, i32 0))
+  store %pokemon %init_pokemon_result, %pokemon* %charizard
+  %init_pokemon_result1 = call %pokemon @init_pokemon(i32 10, i32 1, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @temp.20, i32 0, i32 0))
+  store %pokemon %init_pokemon_result1, %pokemon* %squirtle
+  %squirtle2 = load %pokemon, %pokemon* %squirtle
+  %charizard3 = load %pokemon, %pokemon* %charizard
+  %battle_result = call %pokemon @battle(%pokemon %charizard3, %pokemon %squirtle2)
+  ret i32 0
+}
