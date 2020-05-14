@@ -39,7 +39,6 @@ type schunk_def = {
   scname: string;
   scfields: bind list;
 
-  scassigns: sstmt list;
 
 } 
 
@@ -87,7 +86,6 @@ let string_of_scdecl cdecl =
 
   cdecl.scname ^ "{\n" ^
   String.concat "" (List.map string_of_vdecl cdecl.scfields) ^
-  String.concat "" (List.map string_of_sstmt cdecl.scassigns) ^
   "}\n"
 
 
