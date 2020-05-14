@@ -36,6 +36,15 @@ let translate (globals, functions, chunks) =
   and float_t    = L.double_type context   in
 
 
+
+
+(*concept of using a hashtable to map chunk name to lltype
+  adopted and modified from English project from Fall 2017
+ http://www.cs.columbia.edu/~sedwards/classes/2017/4115-fall/index.html*)
+
+
+
+
 let chunk_name_to_type:(string, L.lltype) Hashtbl.t = Hashtbl.create 5
 in 
 
@@ -68,14 +77,15 @@ let make_chunk_body cdecl =
   L.struct_set_body chunk_typ cfield_lltypes true in
   List.map make_chunk_body chunks;
 
+
 let chunk_field_indices =
   let handles m chnk = 
-    let chunk_field_names = List.map (fun (t, n) -> n) chnk.scfields in
+    let field_names = List.map (fun (t, n) -> n) chnk.scfields in
     let add_one n = n + 1 in
     let add_fieldindex (m, i) field_name =
       (StringMap.add field_name (add_one i) m, add_one i) in
     let chunk_field_map = 
-      List.fold_left add_fieldindex (StringMap.empty, -1) chunk_field_names
+      List.fold_left add_fieldindex (StringMap.empty, -1) field_names
     in
     StringMap.add chnk.scname (fst chunk_field_map) m  
   in
@@ -248,6 +258,10 @@ let chunk_field_indices =
          finalCopy
          
     in
+
+
+    (*addr_of_expr modified from English project from Fall 2017
+     http://www.cs.columbia.edu/~sedwards/classes/2017/4115-fall/index.html*)
 
     let addr_of_expr expr builder = 
      match expr with

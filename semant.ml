@@ -29,6 +29,12 @@ let check (globals, functions, chunks) =
 
 
 
+(* concept of ensuring that chunks do not have recursive definitions
+ * adopted and modified from English project from Fall 2017
+ http://www.cs.columbia.edu/~sedwards/classes/2017/4115-fall/index.html*)
+
+
+
   let find_cdecl_from_cname chunk_t_name =
     try List.find (fun t-> t.cname= chunk_t_name) chunks 
       with Not_found -> raise (Failure("chunk " ^ chunk_t_name ^ "not found")) 
@@ -54,6 +60,10 @@ let check (globals, functions, chunks) =
 
 
 
+
+(* Methods for ensuring fields accessed from chunks actually belong to that chunk
+ * adopted and modified from English project from Fall 2017
+ http://www.cs.columbia.edu/~sedwards/classes/2017/4115-fall/index.html*)
 
   let resolve_chunk_access cname field =
     let  c = try List.find (fun t -> t.cname = cname) chunks
@@ -122,7 +132,7 @@ let check (globals, functions, chunks) =
         StringMap.empty (globals @ func.formals @ func.locals )
     in
 
-    (* need a function that takes a chunklit and returns type*)
+    (* Function that takes a chunklit and returns type*)
     let get_chunk_typ_from_id cid =
       try StringMap.find cid symbols
         with Not_found -> raise (Failure (cid ^ " not found"))
